@@ -18,10 +18,10 @@
       --sky-deep: #5ca8e6;
       --sky-soft: #eef7ff;
       --card-bg: rgba(255, 255, 255, 0.95);
-      --border-sky: rgba(126, 194, 245, 0.38);
+      --border-sky: rgba(126, 194, 245, 0.36);
       --text-main: #3b4b5e;
       --text-muted: #6e8196;
-      --shadow-sky: 0 12px 28px rgba(114, 168, 214, 0.16);
+      --shadow-sky: 0 12px 28px rgba(114, 168, 214, 0.15);
     }
 
     *, *::before, *::after {
@@ -34,11 +34,11 @@
     body {
       min-height: 100vh;
       color: var(--text-main);
-      background-color: #d9edff;
+      background-color: #e4f2ff;
       background-image:
-        radial-gradient(rgba(255, 255, 255, 0.95) 3.2px, transparent 3.4px),
-        linear-gradient(180deg, #eff8ff 0%, #d8ecff 55%, #cde5ff 100%);
-      background-size: 26px 26px, 100% 100%;
+        radial-gradient(rgba(255, 255, 255, 0.78) 1.5px, transparent 1.6px),
+        linear-gradient(180deg, #f3f9ff 0%, #e1f1ff 58%, #d4ebff 100%);
+      background-size: 22px 22px, 100% 100%;
       padding: 20px 14px 90px;
       display: flex;
       justify-content: center;
@@ -129,8 +129,8 @@
     }
 
     .frame-preview-base {
-      width: 70px;
-      height: 70px;
+      width: 66px;
+      height: 66px;
       border-radius: 50%;
       object-fit: cover;
     }
@@ -141,7 +141,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transform: scale(1.06);
+      transform: scale(0.92);
       pointer-events: none;
     }
 
@@ -333,13 +333,16 @@
         </div>
       </div>
 
-      <!-- 3. จัดการกล่องลิงก์ติดต่อ -->
+      <!-- 3. จัดการกล่องลิงก์ติดต่อ & เพลง -->
       <div class="card">
         <div class="card-title">
-          <span>🔗 กล่องลิงก์ติดต่อ</span>
+          <span>🔗 กล่องลิงก์ติดต่อ & เพลง</span>
           <button type="button" class="btn-outline" onclick="addLinkRow()">+ เพิ่มกล่องลิงก์</button>
         </div>
         <div id="linksEditorList"></div>
+
+        <label class="field-label" style="margin-top:8px;">ลิงก์เพลง (.mp3)</label>
+        <input type="url" id="musicUrlInput" class="input-box" placeholder="https://file.garden/asG8Gt-rqWIpi3II/LISA%20-%20MOONLIT%20FLOOR%20(Official%20Audio).mp3">
       </div>
 
       <button type="button" class="btn-sky" id="saveMainBtn" style="margin-bottom:20px;" onclick="saveMainConfig()">☁️ บันทึกการตั้งค่าหน้าเว็บทั้งหมด ♡</button>
@@ -402,6 +405,7 @@
     const AUTH_PASS = "@punpunz9";
     const DB_COLLECTION = "soeulityluvselris_site";
     const MAX_DOC_BYTES = 720000;
+    const DEFAULT_MUSIC = "https://file.garden/asG8Gt-rqWIpi3II/LISA%20-%20MOONLIT%20FLOOR%20(Official%20Audio).mp3";
 
     const DEFAULT_LINKS = [
       { title: "♡ line @861pblyp", url: "https://lin.ee/6AUvK58" },
@@ -422,6 +426,7 @@
       nameSideImg: "https://files.catbox.moe/lgd4y6.png",
       bioText: "welc݁om݂e ⠀ ཾ⠀ ⠀ּ⠀      𓈒☁️𓂂ٜ\nluvselris𓂂 s𓈒tor݁e\nopen 09.00 - close 00.00\nแอพพรี , เว็บไซต์ , ป้าย , เมล กดช่องทางการติดต่อด้านล่างได้เลยนะค้าบ",
       driveHeading: "☁️ website , ฯ",
+      musicUrl: DEFAULT_MUSIC,
       links: DEFAULT_LINKS
     };
 
@@ -514,6 +519,7 @@
       document.getElementById("shopNameInput").value = d.shopName || DEFAULTS.shopName;
       document.getElementById("bioTextInput").value = d.bioText || DEFAULTS.bioText;
       document.getElementById("driveHeadingInput").value = d.driveHeading || DEFAULTS.driveHeading;
+      document.getElementById("musicUrlInput").value = d.musicUrl || DEFAULT_MUSIC;
 
       CONFIG_IMG_KEYS.forEach(k => {
         const val = d[k] || DEFAULTS[k];
@@ -567,7 +573,6 @@
       });
     }
 
-    // ย่อขนาดรูปให้ไม่เกินขีดจำกัด Firestore โดยคงสัดส่วนเดิมครบ 100% ไม่ตัดภาพ
     async function processImageUnlimited(file, maxSide = 960, preserveAlpha = false) {
       const raw = await readRawDataUrl(file);
       const isPngOrGif = file.type === "image/png" || file.type === "image/gif" || preserveAlpha;
@@ -654,6 +659,7 @@
         shopName: document.getElementById("shopNameInput").value.trim() || DEFAULTS.shopName,
         bioText: document.getElementById("bioTextInput").value,
         driveHeading: document.getElementById("driveHeadingInput").value.trim() || DEFAULTS.driveHeading,
+        musicUrl: document.getElementById("musicUrlInput").value.trim() || DEFAULT_MUSIC,
         links: cleanLinks
       };
 
