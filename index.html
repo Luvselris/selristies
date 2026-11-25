@@ -19,11 +19,11 @@
       --sky-soft: #eef7ff;
       --sky-accent: #7ec2f5;
       --sky-deep: #5ca8e6;
-      --card-bg: rgba(255, 255, 255, 0.94);
-      --border-sky: rgba(126, 194, 245, 0.38);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --border-sky: rgba(126, 194, 245, 0.36);
       --text-main: #3b4b5e;
       --text-muted: #6e8196;
-      --shadow-sky: 0 12px 28px rgba(114, 168, 214, 0.16);
+      --shadow-sky: 0 12px 28px rgba(114, 168, 214, 0.15);
     }
 
     *, *::before, *::after {
@@ -37,12 +37,12 @@
     body {
       min-height: 100vh;
       color: var(--text-main);
-      /* พื้นหลังลายจุดขาวบนพื้นฟ้าพาสเทลละมุนตามภาพตัวอย่าง */
-      background-color: #d9edff;
+      /* พื้นหลังลายจุดเล็กๆ นุ่มละมุน ไม่รกตา */
+      background-color: #e4f2ff;
       background-image:
-        radial-gradient(rgba(255, 255, 255, 0.95) 3.2px, transparent 3.4px),
-        linear-gradient(180deg, #eff8ff 0%, #d8ecff 55%, #cde5ff 100%);
-      background-size: 26px 26px, 100% 100%;
+        radial-gradient(rgba(255, 255, 255, 0.78) 1.5px, transparent 1.6px),
+        linear-gradient(180deg, #f3f9ff 0%, #e1f1ff 58%, #d4ebff 100%);
+      background-size: 22px 22px, 100% 100%;
       background-position: 0 0, 0 0;
       overflow-x: hidden;
       position: relative;
@@ -60,7 +60,7 @@
     .sky-orb {
       position: absolute;
       border-radius: 50%;
-      filter: blur(22px);
+      filter: blur(24px);
       animation: orbBreatheDrift 11s ease-in-out infinite alternate;
       will-change: transform, opacity;
     }
@@ -69,7 +69,7 @@
       position: absolute;
       bottom: -40px;
       border-radius: 50%;
-      filter: blur(5px);
+      filter: blur(6px);
       pointer-events: none;
       opacity: 0;
       animation: puffRiseBreathe 12s ease-in-out infinite;
@@ -77,16 +77,16 @@
     }
 
     @keyframes orbBreatheDrift {
-      0% { transform: translate3d(0, 0, 0) scale(0.84); opacity: 0.55; }
-      50% { transform: translate3d(20px, -22px, 0) scale(1.16); opacity: 0.92; }
-      100% { transform: translate3d(-16px, 16px, 0) scale(0.9); opacity: 0.62; }
+      0% { transform: translate3d(0, 0, 0) scale(0.84); opacity: 0.52; }
+      50% { transform: translate3d(20px, -22px, 0) scale(1.16); opacity: 0.88; }
+      100% { transform: translate3d(-16px, 16px, 0) scale(0.9); opacity: 0.58; }
     }
 
     @keyframes puffRiseBreathe {
       0% { transform: translate3d(0, 0, 0) scale(0.75); opacity: 0; }
-      20% { opacity: 0.85; }
-      50% { transform: translate3d(14px, -55vh, 0) scale(1.18); opacity: 0.95; }
-      80% { opacity: 0.65; }
+      20% { opacity: 0.8; }
+      50% { transform: translate3d(14px, -55vh, 0) scale(1.18); opacity: 0.9; }
+      80% { opacity: 0.6; }
       100% { transform: translate3d(-10px, -112vh, 0) scale(0.82); opacity: 0; }
     }
 
@@ -150,7 +150,7 @@
       color: var(--text-muted);
       line-height: 1.9;
       white-space: pre-line;
-      background: rgba(235, 246, 255, 0.72);
+      background: rgba(238, 248, 255, 0.78);
       border: 1.5px solid #ffffff;
       border-radius: 18px;
       padding: 10px 14px;
@@ -200,7 +200,7 @@
       gap: 8px;
     }
 
-    .back-pill-btn {
+    .back-pill-btn, .music-pill-btn {
       background: var(--card-bg);
       border: 1.5px solid #ffffff;
       color: var(--text-main);
@@ -216,8 +216,14 @@
       transition: transform 0.15s ease;
     }
 
-    .back-pill-btn:active {
+    .back-pill-btn:active, .music-pill-btn:active {
       transform: scale(0.96);
+    }
+
+    .music-pill-btn.playing {
+      border-color: var(--sky-deep);
+      color: var(--sky-deep);
+      background: #f2f9ff;
     }
 
     .profile-card {
@@ -247,12 +253,12 @@
       display: block;
     }
 
-    /* กรอบโปรไฟล์พอดีวงกลมและขอบรูปไม่โผล่ */
+    /* ขนาดกรอบโปรไฟล์เล็กลงให้พอดีกับวงกลมโปรไฟล์ไม่เกินขอบ */
     .avatar-stage {
       position: relative;
-      width: 132px;
-      height: 132px;
-      margin: -58px auto 4px;
+      width: 112px;
+      height: 112px;
+      margin: -48px auto 4px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -260,11 +266,12 @@
     }
 
     .avatar-photo-circle {
-      width: 96px;
-      height: 96px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       overflow: hidden;
       background: #ffffff;
+      border: 2px solid #ffffff;
       position: relative;
       z-index: 1;
     }
@@ -282,7 +289,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transform: scale(1.06);
+      transform: scale(0.92);
       transform-origin: center center;
       pointer-events: none;
       z-index: 2;
@@ -319,7 +326,7 @@
       margin-top: 12px;
       padding: 12px 14px;
       border-radius: 20px;
-      background: linear-gradient(180deg, rgba(240, 248, 255, 0.85), rgba(255, 255, 255, 0.9));
+      background: linear-gradient(180deg, rgba(242, 249, 255, 0.88), rgba(255, 255, 255, 0.92));
       border: 1.5px solid #ffffff;
       font-size: 13px;
       line-height: 1.85;
@@ -337,7 +344,7 @@
     }
 
     .pastel-link-box {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(235, 247, 255, 0.94));
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(238, 248, 255, 0.94));
       backdrop-filter: blur(12px);
       border: 2px solid #ffffff;
       border-radius: 22px;
@@ -354,7 +361,7 @@
     }
 
     .pastel-link-box:nth-child(even) {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(226, 243, 255, 0.94));
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(230, 245, 255, 0.94));
     }
 
     .pastel-link-box:active {
@@ -397,7 +404,7 @@
       font-size: 11px;
       font-weight: 700;
       color: var(--sky-deep);
-      background: #eaf5ff;
+      background: #edf6ff;
       border: 1px solid #ffffff;
       padding: 4px 10px;
       border-radius: 999px;
@@ -410,7 +417,7 @@
     }
 
     .folder-item-card {
-      background: linear-gradient(180deg, #ffffff 0%, #edf7ff 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #eff8ff 100%);
       border: 2px solid #ffffff;
       border-radius: 22px;
       padding: 14px 10px 12px;
@@ -478,7 +485,7 @@
       width: 100%;
       max-width: 440px;
       max-height: 86vh;
-      background: linear-gradient(180deg, #f6fbff 0%, #e7f4ff 100%);
+      background: linear-gradient(180deg, #f7fbff 0%, #e9f5ff 100%);
       border: 2.5px solid #ffffff;
       border-radius: 28px;
       padding: 16px 14px 20px;
@@ -540,8 +547,8 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       border-radius: 16px;
-      background: #f0f7ff;
-      border: 1.5px solid #e1f0ff;
+      background: #f2f8ff;
+      border: 1.5px solid #e3f1ff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -601,11 +608,13 @@
 </head>
 <body>
 
+  <audio id="bgMusic" loop preload="auto" playsinline src="https://file.garden/asG8Gt-rqWIpi3II/LISA%20-%20MOONLIT%20FLOOR%20(Official%20Audio).mp3"></audio>
+
   <!-- ลูกเล่นวงกลมฟุ้งๆ สีฟ้าขาวพาสเทล ลอยหุบเข้าออก -->
   <div class="sky-ambient-layer" id="skyAmbientLayer">
-    <div class="sky-orb" style="width:210px; height:210px; top:7%; left:-45px; background:rgba(255, 255, 255, 0.9);"></div>
-    <div class="sky-orb" style="width:230px; height:230px; top:38%; right:-50px; background:rgba(167, 216, 255, 0.72); animation-delay:-3.8s;"></div>
-    <div class="sky-orb" style="width:195px; height:195px; bottom:10%; left:6%; background:rgba(214, 238, 255, 0.85); animation-delay:-7.5s;"></div>
+    <div class="sky-orb" style="width:210px; height:210px; top:7%; left:-45px; background:rgba(255, 255, 255, 0.88);"></div>
+    <div class="sky-orb" style="width:230px; height:230px; top:38%; right:-50px; background:rgba(176, 221, 255, 0.7); animation-delay:-3.8s;"></div>
+    <div class="sky-orb" style="width:195px; height:195px; bottom:10%; left:6%; background:rgba(220, 241, 255, 0.84); animation-delay:-7.5s;"></div>
   </div>
 
   <!-- หน้าแรกต้อนรับ -->
@@ -623,6 +632,7 @@ click to view ♡</div>
   <main class="main-screen" id="mainScreen">
     <div class="top-header-row">
       <button type="button" class="back-pill-btn" onclick="backToWelcome()">← หน้าแรก</button>
+      <button type="button" class="music-pill-btn" id="musicPillBtn" onclick="toggleMusicBtn(event)">♫ เพลง</button>
     </div>
 
     <div class="profile-card">
@@ -674,6 +684,7 @@ open 09.00 - close 00.00
 
   <script>
     const DB_COLLECTION = "soeulityluvselris_site";
+    const DEFAULT_MUSIC = "https://file.garden/asG8Gt-rqWIpi3II/LISA%20-%20MOONLIT%20FLOOR%20(Official%20Audio).mp3";
 
     const DEFAULT_LINKS = [
       { title: "♡ line @861pblyp", url: "https://lin.ee/6AUvK58" },
@@ -702,6 +713,7 @@ open 09.00 - close 00.00
       nameSideImg: "https://files.catbox.moe/lgd4y6.png",
       bioText: "welc݁om݂e ⠀ ཾ⠀ ⠀ּ⠀      𓈒☁️𓂂ٜ\nluvselris𓂂 s𓈒tor݁e\nopen 09.00 - close 00.00\nแอพพรี , เว็บไซต์ , ป้าย , เมล กดช่องทางการติดต่อด้านล่างได้เลยนะค้าบ",
       driveHeading: "☁️ website , ฯ",
+      musicUrl: DEFAULT_MUSIC,
       links: DEFAULT_LINKS
     };
 
@@ -717,9 +729,59 @@ open 09.00 - close 00.00
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    const audio = document.getElementById("bgMusic");
+    const musicPillBtn = document.getElementById("musicPillBtn");
+    let manuallyPaused = false;
+    let musicUnlocked = false;
+
     let allFolders = [...DEFAULT_FOLDERS];
     let allPosts = [];
     let activeFolderId = null;
+
+    function syncMusicLabel() {
+      if (!audio.paused) {
+        musicPillBtn.classList.add("playing");
+        musicPillBtn.textContent = "♪ กำลังเล่น";
+      } else {
+        musicPillBtn.classList.remove("playing");
+        musicPillBtn.textContent = "♫ เพลง";
+      }
+    }
+
+    audio.addEventListener("play", syncMusicLabel);
+    audio.addEventListener("pause", syncMusicLabel);
+
+    function startMusicImmediate() {
+      if (manuallyPaused) return;
+      if (!audio.getAttribute("src")) {
+        audio.setAttribute("src", DEFAULT_MUSIC);
+      }
+      audio.play().catch(() => {});
+    }
+
+    function toggleMusicBtn(e) {
+      if (e) e.stopPropagation();
+      musicUnlocked = true;
+      if (!audio.getAttribute("src")) {
+        audio.setAttribute("src", DEFAULT_MUSIC);
+      }
+      if (audio.paused) {
+        manuallyPaused = false;
+        audio.play().catch(() => {});
+      } else {
+        manuallyPaused = true;
+        audio.pause();
+      }
+    }
+
+    window.addEventListener("pointerdown", () => {
+      if (!musicUnlocked) {
+        musicUnlocked = true;
+        if (!manuallyPaused && audio.paused) {
+          startMusicImmediate();
+        }
+      }
+    }, { passive: true });
 
     function escapeHtml(str) {
       return String(str || "")
@@ -732,6 +794,8 @@ open 09.00 - close 00.00
     function enterSitePage() {
       document.getElementById("welcomeScreen").classList.add("hidden");
       document.getElementById("mainScreen").classList.add("active");
+      manuallyPaused = false;
+      startMusicImmediate();
     }
 
     function backToWelcome() {
@@ -835,14 +899,22 @@ open 09.00 - close 00.00
       document.getElementById("bioPanelText").textContent = cfg.bioText;
       document.getElementById("driveHeadingText").textContent = cfg.driveHeading;
 
+      const targetMusic = cfg.musicUrl || DEFAULT_MUSIC;
+      if (targetMusic && audio.getAttribute("src") !== targetMusic) {
+        const shouldPlay = !manuallyPaused && !audio.paused;
+        audio.setAttribute("src", targetMusic);
+        audio.load();
+        if (shouldPlay) audio.play().catch(() => {});
+      }
+
       renderLinks(cfg.links);
     }
 
     // สร้างวงกลมฟุ้งๆ ลอยหุบเข้าออกสีฟ้าขาวพาสเทล
     const skyPuffPalette = [
-      "rgba(255, 255, 255, 0.9)",
-      "rgba(186, 226, 255, 0.78)",
-      "rgba(218, 240, 255, 0.85)"
+      "rgba(255, 255, 255, 0.88)",
+      "rgba(186, 226, 255, 0.74)",
+      "rgba(222, 242, 255, 0.82)"
     ];
     const ambientLayer = document.getElementById("skyAmbientLayer");
     setInterval(() => {
@@ -858,7 +930,6 @@ open 09.00 - close 00.00
       setTimeout(() => puff.remove(), 15500);
     }, 1450);
 
-    // ตั้งค่าเริ่มต้นทันทีและซิงก์เรียลไทม์จาก Firestore
     applyConfig(DEFAULTS);
     renderFolders();
 
