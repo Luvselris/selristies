@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title id="pageTitle">soeulityluvselris ♡</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --sky-base: #dceeff;
+      --sky-soft: #eef7ff;
+      --sky-accent: #7ec2f5;
+      --sky-deep: #5ca8e6;
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --border-sky: rgba(126, 194, 245, 0.38);
+      --text-main: #3b4b5e;
+      --text-muted: #6e8196;
+      --shadow-sky: 0 12px 28px rgba(114, 168, 214, 0.16);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Quicksand', 'Mitr', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      /* พื้นหลังลายจุดขาวบนพื้นฟ้าพาสเทลละมุนตามภาพตัวอย่าง */
+      background-color: #d9edff;
+      background-image:
+        radial-gradient(rgba(255, 255, 255, 0.95) 3.2px, transparent 3.4px),
+        linear-gradient(180deg, #eff8ff 0%, #d8ecff 55%, #cde5ff 100%);
+      background-size: 26px 26px, 100% 100%;
+      background-position: 0 0, 0 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ลูกเล่นวงกลมฟุ้งๆ สีฟ้าขาวพาสเทล ลอยหุบเข้าออก */
+    .sky-ambient-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .sky-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(22px);
+      animation: orbBreatheDrift 11s ease-in-out infinite alternate;
+      will-change: transform, opacity;
+    }
+
+    .sky-puff {
+      position: absolute;
+      bottom: -40px;
+      border-radius: 50%;
+      filter: blur(5px);
+      pointer-events: none;
+      opacity: 0;
+      animation: puffRiseBreathe 12s ease-in-out infinite;
+      will-change: transform, opacity;
+    }
+
+    @keyframes orbBreatheDrift {
+      0% { transform: translate3d(0, 0, 0) scale(0.84); opacity: 0.55; }
+      50% { transform: translate3d(20px, -22px, 0) scale(1.16); opacity: 0.92; }
+      100% { transform: translate3d(-16px, 16px, 0) scale(0.9); opacity: 0.62; }
+    }
+
+    @keyframes puffRiseBreathe {
+      0% { transform: translate3d(0, 0, 0) scale(0.75); opacity: 0; }
+      20% { opacity: 0.85; }
+      50% { transform: translate3d(14px, -55vh, 0) scale(1.18); opacity: 0.95; }
+      80% { opacity: 0.65; }
+      100% { transform: translate3d(-10px, -112vh, 0) scale(0.82); opacity: 0; }
+    }
+
+    /* หน้าแรกต้อนรับ */
+    .welcome-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .welcome-screen.hidden {
+      display: none;
+    }
+
+    .welcome-card {
+      width: 100%;
+      max-width: 358px;
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 2.5px solid #ffffff;
+      border-radius: 32px;
+      padding: 30px 22px 26px;
+      text-align: center;
+      box-shadow: var(--shadow-sky);
+      animation: cardFadeIn 0.4s ease;
+    }
+
+    @keyframes cardFadeIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .welcome-clean-img {
+      width: 94px;
+      height: 94px;
+      object-fit: contain;
+      margin: 0 auto 14px;
+      display: block;
+      animation: gentleFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .welcome-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.3px;
+      margin-bottom: 10px;
+    }
+
+    .welcome-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.9;
+      white-space: pre-line;
+      background: rgba(235, 246, 255, 0.72);
+      border: 1.5px solid #ffffff;
+      border-radius: 18px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+    }
+
+    .sky-action-btn {
+      width: 100%;
+      padding: 13px 18px;
+      border-radius: 24px;
+      border: 2px solid #ffffff;
+      background: linear-gradient(135deg, #9dd4ff, var(--sky-deep));
+      color: #ffffff;
+      font-size: 14.5px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(92, 168, 230, 0.32);
+      transition: transform 0.16s ease;
+    }
+
+    .sky-action-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* หน้าหลัก */
+    .main-screen {
+      display: none;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 18px 14px 80px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .main-screen.active {
+      display: block;
+      animation: cardFadeIn 0.4s ease;
+    }
+
+    .top-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .back-pill-btn {
+      background: var(--card-bg);
+      border: 1.5px solid #ffffff;
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(114, 168, 214, 0.14);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.15s ease;
+    }
+
+    .back-pill-btn:active {
+      transform: scale(0.96);
+    }
+
+    .profile-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 2.5px solid #ffffff;
+      border-radius: 30px;
+      padding: 12px 14px 20px;
+      text-align: center;
+      box-shadow: var(--shadow-sky);
+      margin-bottom: 14px;
+    }
+
+    .banner-frame {
+      width: 100%;
+      height: 154px;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 2px solid #ffffff;
+      background: linear-gradient(135deg, #e2f2ff, #ffffff);
+    }
+
+    .banner-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* กรอบโปรไฟล์พอดีวงกลมและขอบรูปไม่โผล่ */
+    .avatar-stage {
+      position: relative;
+      width: 132px;
+      height: 132px;
+      margin: -58px auto 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+    }
+
+    .avatar-photo-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #ffffff;
+      position: relative;
+      z-index: 1;
+    }
+
+    .avatar-photo-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar-frame-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scale(1.06);
+      transform-origin: center center;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .shop-name-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 2px;
+    }
+
+    .shop-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.3px;
+    }
+
+    .floating-name-png {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      animation: namePngFloat 2.8s ease-in-out infinite;
+    }
+
+    @keyframes namePngFloat {
+      0%, 100% { transform: translateY(0px) rotate(-4deg); }
+      50% { transform: translateY(-4px) rotate(5deg); }
+    }
+
+    .bio-panel {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(240, 248, 255, 0.85), rgba(255, 255, 255, 0.9));
+      border: 1.5px solid #ffffff;
+      font-size: 13px;
+      line-height: 1.85;
+      color: var(--text-muted);
+      white-space: pre-line;
+      text-align: center;
+    }
+
+    /* กล่องลิงก์ติดต่อ */
+    .links-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin-bottom: 18px;
+    }
+
+    .pastel-link-box {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(235, 247, 255, 0.94));
+      backdrop-filter: blur(12px);
+      border: 2px solid #ffffff;
+      border-radius: 22px;
+      padding: 14px 18px;
+      text-decoration: none;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13.5px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sky);
+      transition: transform 0.16s ease;
+    }
+
+    .pastel-link-box:nth-child(even) {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(226, 243, 255, 0.94));
+    }
+
+    .pastel-link-box:active {
+      transform: scale(0.98);
+    }
+
+    .link-arrow {
+      color: var(--sky-deep);
+      font-size: 16px;
+    }
+
+    /* ส่วนหัวข้อ website , ฯ สไตล์โฟลเดอร์ไดร์ฟ */
+    .drive-section-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 2.5px solid #ffffff;
+      border-radius: 28px;
+      padding: 16px 14px 18px;
+      box-shadow: var(--shadow-sky);
+    }
+
+    .drive-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 0 4px;
+    }
+
+    .drive-section-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drive-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--sky-deep);
+      background: #eaf5ff;
+      border: 1px solid #ffffff;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .folders-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 11px;
+    }
+
+    .folder-item-card {
+      background: linear-gradient(180deg, #ffffff 0%, #edf7ff 100%);
+      border: 2px solid #ffffff;
+      border-radius: 22px;
+      padding: 14px 10px 12px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(114, 168, 214, 0.14);
+      transition: transform 0.16s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .folder-item-card:active {
+      transform: scale(0.96);
+    }
+
+    .folder-cover-wrap {
+      width: 78px;
+      height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .folder-cover-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .folder-item-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .folder-item-count {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* หน้าต่างเปิดโฟลเดอร์ดูโพสต์ด้านใน */
+    .folder-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(59, 75, 94, 0.36);
+      backdrop-filter: blur(8px);
+      z-index: 50;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px 12px;
+    }
+
+    .folder-modal.open {
+      display: flex;
+    }
+
+    .folder-modal-sheet {
+      width: 100%;
+      max-width: 440px;
+      max-height: 86vh;
+      background: linear-gradient(180deg, #f6fbff 0%, #e7f4ff 100%);
+      border: 2.5px solid #ffffff;
+      border-radius: 28px;
+      padding: 16px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 18px 40px rgba(59, 75, 94, 0.22);
+      animation: cardFadeIn 0.25s ease;
+    }
+
+    .folder-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .folder-modal-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .close-modal-btn {
+      background: #ffffff;
+      border: 1.5px solid var(--border-sky);
+      color: var(--text-main);
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .posts-scroll-area {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-right: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .post-card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 2px solid #ffffff;
+      border-radius: 22px;
+      padding: 12px;
+      box-shadow: 0 8px 20px rgba(114, 168, 214, 0.14);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* กรอบรูปโพสต์ 4x4 (1:1) ย่อขนาดภาพให้เห็นครบทั้งภาพ ห้ามตัดตรงไหน */
+    .post-square-frame {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      background: #f0f7ff;
+      border: 1.5px solid #e1f0ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 6px;
+    }
+
+    .post-square-frame img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .post-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .post-desc {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      white-space: pre-line;
+    }
+
+    .post-visit-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1.5px solid #ffffff;
+      background: linear-gradient(135deg, #9dd4ff, var(--sky-deep));
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 6px 14px rgba(92, 168, 230, 0.25);
+    }
+
+    .empty-box {
+      text-align: center;
+      padding: 28px 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ลูกเล่นวงกลมฟุ้งๆ สีฟ้าขาวพาสเทล ลอยหุบเข้าออก -->
+  <div class="sky-ambient-layer" id="skyAmbientLayer">
+    <div class="sky-orb" style="width:210px; height:210px; top:7%; left:-45px; background:rgba(255, 255, 255, 0.9);"></div>
+    <div class="sky-orb" style="width:230px; height:230px; top:38%; right:-50px; background:rgba(167, 216, 255, 0.72); animation-delay:-3.8s;"></div>
+    <div class="sky-orb" style="width:195px; height:195px; bottom:10%; left:6%; background:rgba(214, 238, 255, 0.85); animation-delay:-7.5s;"></div>
+  </div>
+
+  <!-- หน้าแรกต้อนรับ -->
+  <section class="welcome-screen" id="welcomeScreen">
+    <div class="welcome-card">
+      <img id="welcomeImg" src="https://files.catbox.moe/7vtq8w.png" alt="soeulityluvselris" class="welcome-clean-img">
+      <h1 class="welcome-name" id="welcomeNameText">soeulityluvselris</h1>
+      <div class="welcome-desc" id="welcomeDescText">welcome to selris
+click to view ♡</div>
+      <button type="button" class="sky-action-btn" id="goToSiteBtn" onclick="enterSitePage()">go to my site ♡</button>
+    </div>
+  </section>
+
+  <!-- หน้าหลัก -->
+  <main class="main-screen" id="mainScreen">
+    <div class="top-header-row">
+      <button type="button" class="back-pill-btn" onclick="backToWelcome()">← หน้าแรก</button>
+    </div>
+
+    <div class="profile-card">
+      <div class="banner-frame">
+        <img id="bannerImg" src="https://files.catbox.moe/sb5rdb.gif" alt="Banner">
+      </div>
+
+      <div class="avatar-stage">
+        <div class="avatar-photo-circle">
+          <img id="profileImg" src="https://files.catbox.moe/eqfr2p.jpeg" alt="Profile">
+        </div>
+        <img id="profileFrameImg" class="avatar-frame-overlay" src="https://files.catbox.moe/qlh0qs.png" alt="Frame">
+      </div>
+
+      <div class="shop-name-row">
+        <span class="shop-title" id="shopTitleText">soeulityluvselris</span>
+        <img id="nameSideImg" class="floating-name-png" src="https://files.catbox.moe/lgd4y6.png" alt="Icon">
+      </div>
+
+      <div class="bio-panel" id="bioPanelText">welc݁om݂e ⠀ ཾ⠀ ⠀ּ⠀      𓈒☁️𓂂ٜ
+luvselris𓂂 s𓈒tor݁e
+open 09.00 - close 00.00
+แอพพรี , เว็บไซต์ , ป้าย , เมล กดช่องทางการติดต่อด้านล่างได้เลยนะค้าบ</div>
+    </div>
+
+    <!-- กล่องลิงก์ติดต่อ -->
+    <div class="links-stack" id="linksContainer"></div>
+
+    <!-- หัวข้อ website , ฯ แบบโฟลเดอร์สไตล์ไดร์ฟ -->
+    <section class="drive-section-card">
+      <div class="drive-section-header">
+        <div class="drive-section-title" id="driveHeadingText">☁️ website , ฯ</div>
+        <span class="drive-badge" id="folderCountBadge">1 โฟลเดอร์</span>
+      </div>
+      <div class="folders-grid" id="foldersGrid"></div>
+    </section>
+  </main>
+
+  <!-- หน้าต่างเปิดโฟลเดอร์ดูโพสต์ -->
+  <div class="folder-modal" id="folderModal" onclick="closeFolderModal(event)">
+    <div class="folder-modal-sheet" onclick="event.stopPropagation()">
+      <div class="folder-modal-head">
+        <div class="folder-modal-title" id="modalFolderTitle">โฟลเดอร์</div>
+        <button type="button" class="close-modal-btn" onclick="closeFolderModal()">ปิด ✕</button>
+      </div>
+      <div class="posts-scroll-area" id="modalPostsList"></div>
+    </div>
+  </div>
+
+  <script>
+    const DB_COLLECTION = "soeulityluvselris_site";
+
+    const DEFAULT_LINKS = [
+      { title: "♡ line @861pblyp", url: "https://lin.ee/6AUvK58" },
+      { title: "♡ check credit ( เว็บเก่า )", url: "https://luvselris.web.app" },
+      { title: "♡ check credit ( เว็บใหม่ )", url: "https://leselristies.vercel.app" },
+      { title: "♡ example drive", url: "https://drive.google.com/drive/folders/1VPUYkyqywBZgPIOjGnPbY2OpQn7BJwdq" }
+    ];
+
+    const DEFAULT_FOLDERS = [
+      {
+        id: "default_website_folder",
+        name: "click to example website 🪽",
+        cover: "https://files.catbox.moe/eoflo6.png"
+      }
+    ];
+
+    const DEFAULTS = {
+      welcomeImg: "https://files.catbox.moe/7vtq8w.png",
+      welcomeName: "soeulityluvselris",
+      welcomeDesc: "welcome to selris\nclick to view ♡",
+      goToSiteLabel: "go to my site ♡",
+      bannerImg: "https://files.catbox.moe/sb5rdb.gif",
+      profileImg: "https://files.catbox.moe/eqfr2p.jpeg",
+      profileFrameImg: "https://files.catbox.moe/qlh0qs.png",
+      shopName: "soeulityluvselris",
+      nameSideImg: "https://files.catbox.moe/lgd4y6.png",
+      bioText: "welc݁om݂e ⠀ ཾ⠀ ⠀ּ⠀      𓈒☁️𓂂ٜ\nluvselris𓂂 s𓈒tor݁e\nopen 09.00 - close 00.00\nแอพพรี , เว็บไซต์ , ป้าย , เมล กดช่องทางการติดต่อด้านล่างได้เลยนะค้าบ",
+      driveHeading: "☁️ website , ฯ",
+      links: DEFAULT_LINKS
+    };
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpAGDSy1NRgmLV_g7qJrCpwOhU9MrfQyY",
+      authDomain: "benefitie.firebaseapp.com",
+      projectId: "benefitie",
+      storageBucket: "benefitie.firebasestorage.app",
+      messagingSenderId: "270365672215",
+      appId: "1:270365672215:web:230d1491091e26ce83ed52"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let allFolders = [...DEFAULT_FOLDERS];
+    let allPosts = [];
+    let activeFolderId = null;
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function enterSitePage() {
+      document.getElementById("welcomeScreen").classList.add("hidden");
+      document.getElementById("mainScreen").classList.add("active");
+    }
+
+    function backToWelcome() {
+      document.getElementById("mainScreen").classList.remove("active");
+      document.getElementById("welcomeScreen").classList.remove("hidden");
+    }
+
+    function renderLinks(linksList) {
+      const container = document.getElementById("linksContainer");
+      const items = Array.isArray(linksList) && linksList.length ? linksList : DEFAULT_LINKS;
+      container.innerHTML = items.map(item => `
+        <a href="${escapeHtml(item.url || '#')}" target="_blank" rel="noopener noreferrer" class="pastel-link-box">
+          <span>${escapeHtml(item.title || '')}</span>
+          <span class="link-arrow">➔</span>
+        </a>
+      `).join("");
+    }
+
+    function renderFolders() {
+      const grid = document.getElementById("foldersGrid");
+      const badge = document.getElementById("folderCountBadge");
+      badge.textContent = `${allFolders.length} โฟลเดอร์`;
+
+      if (!allFolders.length) {
+        grid.innerHTML = `<div class="empty-box" style="grid-column:1/-1;">ยังไม่มีโฟลเดอร์</div>`;
+        return;
+      }
+
+      grid.innerHTML = allFolders.map(folder => {
+        const count = allPosts.filter(p => p.folderId === folder.id).length;
+        const coverSrc = folder.cover || "https://files.catbox.moe/eoflo6.png";
+        return `
+          <div class="folder-item-card" onclick="openFolderModal('${escapeHtml(folder.id)}')">
+            <div class="folder-cover-wrap">
+              <img src="${escapeHtml(coverSrc)}" alt="">
+            </div>
+            <div class="folder-item-name">${escapeHtml(folder.name)}</div>
+            <div class="folder-item-count">${count} โพสต์</div>
+          </div>
+        `;
+      }).join("");
+
+      if (activeFolderId) {
+        renderPostsInModal(activeFolderId);
+      }
+    }
+
+    function openFolderModal(folderId) {
+      activeFolderId = folderId;
+      const folder = allFolders.find(f => f.id === folderId);
+      document.getElementById("modalFolderTitle").textContent = folder ? folder.name : "โฟลเดอร์";
+      renderPostsInModal(folderId);
+      document.getElementById("folderModal").classList.add("open");
+    }
+
+    function closeFolderModal() {
+      activeFolderId = null;
+      document.getElementById("folderModal").classList.remove("open");
+    }
+
+    function renderPostsInModal(folderId) {
+      const listEl = document.getElementById("modalPostsList");
+      const posts = allPosts.filter(p => p.folderId === folderId);
+
+      if (!posts.length) {
+        listEl.innerHTML = `<div class="empty-box">ยังไม่มีโพสต์ในโฟลเดอร์นี้ ♡</div>`;
+        return;
+      }
+
+      listEl.innerHTML = posts.map(post => `
+        <article class="post-card">
+          ${post.image ? `
+            <div class="post-square-frame">
+              <img src="${escapeHtml(post.image)}" alt="">
+            </div>
+          ` : ""}
+          ${post.title ? `<div class="post-title">${escapeHtml(post.title)}</div>` : ""}
+          ${post.description ? `<div class="post-desc">${escapeHtml(post.description)}</div>` : ""}
+          ${post.link ? `
+            <a href="${escapeHtml(post.link)}" target="_blank" rel="noopener noreferrer" class="post-visit-btn">
+              เข้าชมเว็บไซต์ / ลิงก์ ➔
+            </a>
+          ` : ""}
+        </article>
+      `).join("");
+    }
+
+    function applyConfig(d) {
+      const cfg = { ...DEFAULTS, ...(d || {}) };
+      document.getElementById("welcomeImg").src = cfg.welcomeImg;
+      document.getElementById("welcomeNameText").textContent = cfg.welcomeName;
+      document.getElementById("welcomeDescText").textContent = cfg.welcomeDesc;
+      document.getElementById("goToSiteBtn").textContent = cfg.goToSiteLabel;
+
+      document.getElementById("bannerImg").src = cfg.bannerImg;
+      document.getElementById("profileImg").src = cfg.profileImg;
+      document.getElementById("profileFrameImg").src = cfg.profileFrameImg;
+      document.getElementById("shopTitleText").textContent = cfg.shopName;
+      document.getElementById("pageTitle").textContent = cfg.shopName + " ♡";
+      document.getElementById("nameSideImg").src = cfg.nameSideImg;
+      document.getElementById("bioPanelText").textContent = cfg.bioText;
+      document.getElementById("driveHeadingText").textContent = cfg.driveHeading;
+
+      renderLinks(cfg.links);
+    }
+
+    // สร้างวงกลมฟุ้งๆ ลอยหุบเข้าออกสีฟ้าขาวพาสเทล
+    const skyPuffPalette = [
+      "rgba(255, 255, 255, 0.9)",
+      "rgba(186, 226, 255, 0.78)",
+      "rgba(218, 240, 255, 0.85)"
+    ];
+    const ambientLayer = document.getElementById("skyAmbientLayer");
+    setInterval(() => {
+      const puff = document.createElement("div");
+      puff.className = "sky-puff";
+      const size = 18 + Math.random() * 24;
+      puff.style.width = size + "px";
+      puff.style.height = size + "px";
+      puff.style.background = skyPuffPalette[Math.floor(Math.random() * skyPuffPalette.length)];
+      puff.style.left = (5 + Math.random() * 90) + "vw";
+      puff.style.animationDuration = (10 + Math.random() * 5) + "s";
+      ambientLayer.appendChild(puff);
+      setTimeout(() => puff.remove(), 15500);
+    }, 1450);
+
+    // ตั้งค่าเริ่มต้นทันทีและซิงก์เรียลไทม์จาก Firestore
+    applyConfig(DEFAULTS);
+    renderFolders();
+
+    db.collection(DB_COLLECTION).doc("main").onSnapshot(doc => {
+      if (doc.exists) {
+        applyConfig(doc.data());
+      }
+    });
+
+    db.collection(DB_COLLECTION).doc("main").collection("folders")
+      .orderBy("createdAt", "asc")
+      .onSnapshot(snap => {
+        if (!snap.empty) {
+          allFolders = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } else {
+          allFolders = [...DEFAULT_FOLDERS];
+        }
+        renderFolders();
+      });
+
+    db.collection(DB_COLLECTION).doc("main").collection("posts")
+      .orderBy("createdAt", "desc")
+      .onSnapshot(snap => {
+        allPosts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderFolders();
+      });
+  </script>
+</body>
+</html>
