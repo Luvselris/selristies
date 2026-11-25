@@ -37,7 +37,6 @@
     body {
       min-height: 100vh;
       color: var(--text-main);
-      /* พื้นหลังลายจุดเล็กๆ นุ่มละมุน ไม่รกตา */
       background-color: #e4f2ff;
       background-image:
         radial-gradient(rgba(255, 255, 255, 0.78) 1.5px, transparent 1.6px),
@@ -253,12 +252,12 @@
       display: block;
     }
 
-    /* สัดส่วนกรอบโปรไฟล์วงกลมตามภาพตัวอย่างที่สอง: รูปโปรไฟล์เต็มวงด้านใน กรอบแนบพอดีรอบวง */
+    /* วัดสัดส่วนตามภาพที่สอง: วงกลมโปรไฟล์ขนาดพอดีเต็มวงด้านใน กรอบแนบขอบวงกลมพอดี */
     .avatar-stage {
       position: relative;
-      width: 124px;
-      height: 124px;
-      margin: -54px auto 4px;
+      width: 118px;
+      height: 118px;
+      margin: -50px auto 4px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -266,8 +265,8 @@
     }
 
     .avatar-photo-circle {
-      width: 88px;
-      height: 88px;
+      width: 82px;
+      height: 82px;
       border-radius: 50%;
       overflow: hidden;
       background: #ffffff;
@@ -288,7 +287,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transform: scale(1);
+      transform: scale(1.16);
       transform-origin: center center;
       pointer-events: none;
       z-index: 2;
@@ -909,7 +908,6 @@ open 09.00 - close 00.00
       renderLinks(cfg.links);
     }
 
-    // สร้างวงกลมฟุ้งๆ ลอยหุบเข้าออกสีฟ้าขาวพาสเทล
     const skyPuffPalette = [
       "rgba(255, 255, 255, 0.88)",
       "rgba(186, 226, 255, 0.74)",
