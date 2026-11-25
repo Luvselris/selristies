@@ -252,12 +252,12 @@
       display: block;
     }
 
-    /* กรอบโปรไฟล์พอดีกับวงกลมโปรไฟล์แบบในภาพตัวอย่าง */
+    /* ลดขนาดตัวกรอบให้หดเข้ามาพอดีกับวงกลมโปรไฟล์ ไม่ล้นออกมานอกวงกลม */
     .avatar-stage {
       position: relative;
-      width: 118px;
-      height: 118px;
-      margin: -50px auto 4px;
+      width: 116px;
+      height: 116px;
+      margin: -48px auto 4px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -265,8 +265,8 @@
     }
 
     .avatar-photo-circle {
-      width: 84px;
-      height: 84px;
+      width: 86px;
+      height: 86px;
       border-radius: 50%;
       overflow: hidden;
       background: #ffffff;
@@ -287,7 +287,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transform: scale(1.22);
+      transform: scale(0.76);
       transform-origin: center center;
       pointer-events: none;
       z-index: 2;
