@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard ♡ soeulityluvselris</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --sky-deep: #5ca8e6;
+      --sky-soft: #eef7ff;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --border-sky: rgba(126, 194, 245, 0.38);
+      --text-main: #3b4b5e;
+      --text-muted: #6e8196;
+      --shadow-sky: 0 12px 28px rgba(114, 168, 214, 0.16);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Quicksand', 'Mitr', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      background-color: #d9edff;
+      background-image:
+        radial-gradient(rgba(255, 255, 255, 0.95) 3.2px, transparent 3.4px),
+        linear-gradient(180deg, #eff8ff 0%, #d8ecff 55%, #cde5ff 100%);
+      background-size: 26px 26px, 100% 100%;
+      padding: 20px 14px 90px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 2.5px solid #ffffff;
+      border-radius: 26px;
+      padding: 18px 16px;
+      box-shadow: var(--shadow-sky);
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .input-box, .textarea-box, .select-box {
+      width: 100%;
+      padding: 10px 13px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-sky);
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 13.5px;
+      outline: none;
+      margin-bottom: 11px;
+    }
+
+    .input-box:focus, .textarea-box:focus, .select-box:focus {
+      border-color: var(--sky-deep);
+    }
+
+    .textarea-box {
+      min-height: 76px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .upload-row {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 18px;
+      background: #f4faff;
+      border: 1.5px solid #ffffff;
+    }
+
+    .preview-thumb {
+      width: 66px;
+      height: 66px;
+      border-radius: 14px;
+      object-fit: contain;
+      border: 1.5px solid #ffffff;
+      background: #ffffff;
+    }
+
+    .frame-preview-box {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .frame-preview-base {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .frame-preview-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform: scale(1.06);
+      pointer-events: none;
+    }
+
+    .btn-sky {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      border: 2px solid #ffffff;
+      background: linear-gradient(135deg, #9dd4ff, var(--sky-deep));
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 7px 18px rgba(92, 168, 230, 0.28);
+    }
+
+    .btn-sky:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      border: 1.5px solid var(--border-sky);
+      color: var(--text-main);
+      padding: 7px 13px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background: #fff0f4;
+      border: 1.5px solid #ffc9d8;
+      color: #d64c7f;
+      padding: 6px 11px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .list-item-box {
+      background: #f5faff;
+      border: 1.5px solid #ffffff;
+      border-radius: 16px;
+      padding: 10px 12px;
+      margin-bottom: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .list-item-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .list-item-thumb {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: #ffffff;
+      border: 1px solid #e1f0ff;
+      flex-shrink: 0;
+    }
+
+    .list-item-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .list-item-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-item-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .link-editor-row {
+      background: #f5faff;
+      border: 1.5px solid #ffffff;
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- หน้าล็อกอิน -->
+    <div class="card" id="loginCard">
+      <h2 style="text-align:center; color:var(--sky-deep); margin-bottom:16px;">Admin Login ♡ soeulityluvselris</h2>
+      <form onsubmit="handleLogin(event)">
+        <label class="field-label">อีเมล</label>
+        <input type="email" id="loginEmail" class="input-box" placeholder="กรอกอีเมลแอดมิน" required>
+
+        <label class="field-label">รหัสผ่าน</label>
+        <input type="password" id="loginPass" class="input-box" placeholder="••••••••" required>
+
+        <button type="submit" class="btn-sky">เข้าสู่ระบบ ☁️</button>
+        <p id="loginErr" style="color:#d64c7f; font-size:12px; text-align:center; margin-top:10px; display:none;">อีเมลหรือรหัสผ่านไม่ถูกต้องค่ะ</p>
+      </form>
+    </div>
+
+    <!-- แผงควบคุมหลังบ้าน -->
+    <div id="adminDashboard" class="hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <div style="font-size:17px; font-weight:700; color:var(--text-main);">Dashboard ♡ soeulityluvselris</div>
+        <button type="button" class="btn-outline" onclick="handleLogout()">ออกระบบ</button>
+      </div>
+
+      <!-- 1. หน้าแรกต้อนรับ -->
+      <div class="card">
+        <div class="card-title"><span>☁️ หน้าแรกต้อนรับ</span></div>
+        <label class="field-label">ชื่อหน้าแรก</label>
+        <input type="text" id="welcomeNameInput" class="input-box">
+
+        <label class="field-label">คำอธิบายหน้าแรก</label>
+        <textarea id="welcomeDescInput" class="textarea-box"></textarea>
+
+        <label class="field-label">ข้อความปุ่มฟ้าพาสเทล</label>
+        <input type="text" id="goToSiteLabelInput" class="input-box">
+
+        <div class="upload-row">
+          <label class="field-label" style="margin:0;">รูปหน้าแรก PNG (เลือกจากมือถือได้ไม่จำกัด)</label>
+          <input type="file" accept="image/*" onchange="onPickConfigImage(event, 'welcomeImg')">
+          <input type="text" id="welcomeImgInput" class="input-box" style="margin:0;" placeholder="หรือวางลิงก์รูป">
+          <img id="prev_welcomeImg" class="preview-thumb" src="" alt="">
+        </div>
+      </div>
+
+      <!-- 2. หน้าโปรไฟล์ & รูปทั้งหมด -->
+      <div class="card">
+        <div class="card-title"><span>🪽 โปรไฟล์ แบนเนอร์ & ไบโอ</span></div>
+        <label class="field-label">ชื่อร้าน</label>
+        <input type="text" id="shopNameInput" class="input-box">
+
+        <label class="field-label">ไบโอร้าน</label>
+        <textarea id="bioTextInput" class="textarea-box" style="min-height:96px;"></textarea>
+
+        <div class="upload-row">
+          <label class="field-label" style="margin:0;">รูปแบนเนอร์</label>
+          <input type="file" accept="image/*" onchange="onPickConfigImage(event, 'bannerImg')">
+          <input type="text" id="bannerImgInput" class="input-box" style="margin:0;">
+          <img id="prev_bannerImg" class="preview-thumb" src="" alt="">
+        </div>
+
+        <div class="upload-row">
+          <label class="field-label" style="margin:0;">รูปโปรไฟล์</label>
+          <input type="file" accept="image/*" onchange="onPickConfigImage(event, 'profileImg')">
+          <input type="text" id="profileImgInput" class="input-box" style="margin:0;">
+          <img id="prev_profileImg" class="preview-thumb" src="" alt="">
+        </div>
+
+        <div class="upload-row">
+          <label class="field-label" style="margin:0;">กรอบโปรไฟล์ (จัดขนาดพอดีรอบโปรไฟล์)</label>
+          <input type="file" accept="image/*" onchange="onPickConfigImage(event, 'profileFrameImg')">
+          <input type="text" id="profileFrameImgInput" class="input-box" style="margin:0;">
+          <div class="frame-preview-box">
+            <img id="prev_frameBase" class="frame-preview-base" src="" alt="">
+            <img id="prev_profileFrameImg" class="frame-preview-overlay" src="" alt="">
+          </div>
+        </div>
+
+        <div class="upload-row">
+          <label class="field-label" style="margin:0;">รูป PNG ลอยข้างๆ ชื่อ</label>
+          <input type="file" accept="image/*" onchange="onPickConfigImage(event, 'nameSideImg')">
+          <input type="text" id="nameSideImgInput" class="input-box" style="margin:0;">
+          <img id="prev_nameSideImg" class="preview-thumb" src="" alt="">
+        </div>
+      </div>
+
+      <!-- 3. จัดการกล่องลิงก์ติดต่อ -->
+      <div class="card">
+        <div class="card-title">
+          <span>🔗 กล่องลิงก์ติดต่อ</span>
+          <button type="button" class="btn-outline" onclick="addLinkRow()">+ เพิ่มกล่องลิงก์</button>
+        </div>
+        <div id="linksEditorList"></div>
+      </div>
+
+      <button type="button" class="btn-sky" id="saveMainBtn" style="margin-bottom:20px;" onclick="saveMainConfig()">☁️ บันทึกการตั้งค่าหน้าเว็บทั้งหมด ♡</button>
+
+      <!-- 4. จัดการโฟลเดอร์สไตล์ไดร์ฟ -->
+      <div class="card">
+        <div class="card-title"><span>📁 จัดการโฟลเดอร์ (หัวข้อ website , ฯ)</span></div>
+        <label class="field-label">ชื่อหัวข้อใหญ่หน้าเว็บ</label>
+        <input type="text" id="driveHeadingInput" class="input-box" placeholder="☁️ website , ฯ">
+
+        <hr style="border:none; border-top:1.5px dashed #d6ebff; margin:12px 0;">
+
+        <label class="field-label">สร้างโฟลเดอร์ใหม่</label>
+        <input type="text" id="newFolderName" class="input-box" placeholder="เช่น click to example website 🪽">
+
+        <div class="upload-row">
+          <label class="field-label" style="margin:0;">รูปปกโฟลเดอร์ PNG (เลือกรูปจากมือถือหรือวางลิงก์)</label>
+          <input type="file" accept="image/*" onchange="onPickSingleFile(event, 'newFolderCover', 'prev_newFolderCover')">
+          <input type="text" id="newFolderCover" class="input-box" style="margin:0;" value="https://files.catbox.moe/eoflo6.png">
+          <img id="prev_newFolderCover" class="preview-thumb" src="https://files.catbox.moe/eoflo6.png" alt="">
+        </div>
+
+        <button type="button" class="btn-sky" id="addFolderBtn" onclick="createFolder()">+ เพิ่มโฟลเดอร์</button>
+
+        <div style="margin-top:14px;" id="foldersManageList"></div>
+      </div>
+
+      <!-- 5. เพิ่ม/ลบโพสต์ในโฟลเดอร์ -->
+      <div class="card">
+        <div class="card-title"><span>🖼️ เพิ่มโพสต์ในโฟลเดอร์ (ภาพขนาด 4x4 เต็มใบไม่ตัด)</span></div>
+
+        <label class="field-label">เลือกโฟลเดอร์ที่จะลงโพสต์</label>
+        <select id="postFolderSelect" class="select-box"></select>
+
+        <label class="field-label">ชื่อโพสต์ / ชื่อผลงาน</label>
+        <input type="text" id="postTitleInput" class="input-box" placeholder="เช่น ตัวอย่างเว็บมินิมอลฟ้าพาสเทล">
+
+        <label class="field-label">คำอธิบาย</label>
+        <textarea id="postDescInput" class="textarea-box" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+
+        <label class="field-label">ลิงก์เพื่อเข้าชม (ถ้ามี)</label>
+        <input type="url" id="postLinkInput" class="input-box" placeholder="https://...">
+
+        <div class="upload-row">
+          <label class="field-label" style="margin:0;">รูปภาพโพสต์ (ย่อเข้ากรอบ 4x4 พอดี ไม่ตัดขอบภาพ)</label>
+          <input type="file" accept="image/*" onchange="onPickSingleFile(event, 'postImageInput', 'prev_postImage')">
+          <input type="text" id="postImageInput" class="input-box" style="margin:0;" placeholder="หรือวางลิงก์รูปภาพ">
+          <img id="prev_postImage" class="preview-thumb" src="" alt="">
+        </div>
+
+        <button type="button" class="btn-sky" id="addPostBtn" onclick="createPost()">+ โพสต์ลงโฟลเดอร์</button>
+
+        <div style="margin-top:14px;" id="postsManageList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const AUTH_EMAIL = "srezinalm@gmail.com";
+    const AUTH_PASS = "@punpunz9";
+    const DB_COLLECTION = "soeulityluvselris_site";
+    const MAX_DOC_BYTES = 720000;
+
+    const DEFAULT_LINKS = [
+      { title: "♡ line @861pblyp", url: "https://lin.ee/6AUvK58" },
+      { title: "♡ check credit ( เว็บเก่า )", url: "https://luvselris.web.app" },
+      { title: "♡ check credit ( เว็บใหม่ )", url: "https://leselristies.vercel.app" },
+      { title: "♡ example drive", url: "https://drive.google.com/drive/folders/1VPUYkyqywBZgPIOjGnPbY2OpQn7BJwdq" }
+    ];
+
+    const DEFAULTS = {
+      welcomeImg: "https://files.catbox.moe/7vtq8w.png",
+      welcomeName: "soeulityluvselris",
+      welcomeDesc: "welcome to selris\nclick to view ♡",
+      goToSiteLabel: "go to my site ♡",
+      bannerImg: "https://files.catbox.moe/sb5rdb.gif",
+      profileImg: "https://files.catbox.moe/eqfr2p.jpeg",
+      profileFrameImg: "https://files.catbox.moe/qlh0qs.png",
+      shopName: "soeulityluvselris",
+      nameSideImg: "https://files.catbox.moe/lgd4y6.png",
+      bioText: "welc݁om݂e ⠀ ཾ⠀ ⠀ּ⠀      𓈒☁️𓂂ٜ\nluvselris𓂂 s𓈒tor݁e\nopen 09.00 - close 00.00\nแอพพรี , เว็บไซต์ , ป้าย , เมล กดช่องทางการติดต่อด้านล่างได้เลยนะค้าบ",
+      driveHeading: "☁️ website , ฯ",
+      links: DEFAULT_LINKS
+    };
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpAGDSy1NRgmLV_g7qJrCpwOhU9MrfQyY",
+      authDomain: "benefitie.firebaseapp.com",
+      projectId: "benefitie",
+      storageBucket: "benefitie.firebasestorage.app",
+      messagingSenderId: "270365672215",
+      appId: "1:270365672215:web:230d1491091e26ce83ed52"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentLinks = [...DEFAULT_LINKS];
+    let currentFolders = [];
+    let currentPosts = [];
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (sessionStorage.getItem("soeulity_auth") === "true") {
+        openDashboard();
+      }
+    });
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const em = document.getElementById("loginEmail").value.trim();
+      const pw = document.getElementById("loginPass").value.trim();
+      if (em.toLowerCase() === AUTH_EMAIL.toLowerCase() && pw === AUTH_PASS) {
+        sessionStorage.setItem("soeulity_auth", "true");
+        openDashboard();
+      } else {
+        document.getElementById("loginErr").style.display = "block";
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem("soeulity_auth");
+      location.reload();
+    }
+
+    async function ensureDefaultFolder() {
+      const colRef = db.collection(DB_COLLECTION).doc("main").collection("folders");
+      const snap = await colRef.get();
+      if (snap.empty) {
+        await colRef.doc("default_website_folder").set({
+          name: "click to example website 🪽",
+          cover: "https://files.catbox.moe/eoflo6.png",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    }
+
+    async function openDashboard() {
+      document.getElementById("loginCard").classList.add("hidden");
+      document.getElementById("adminDashboard").classList.remove("hidden");
+
+      await ensureDefaultFolder();
+
+      let data = { ...DEFAULTS };
+      try {
+        const snap = await db.collection(DB_COLLECTION).doc("main").get();
+        if (snap.exists) data = { ...data, ...snap.data() };
+      } catch (e) {}
+
+      fillMainForm(data);
+
+      db.collection(DB_COLLECTION).doc("main").collection("folders")
+        .orderBy("createdAt", "asc")
+        .onSnapshot(snap => {
+          currentFolders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderFoldersAdmin();
+        });
+
+      db.collection(DB_COLLECTION).doc("main").collection("posts")
+        .orderBy("createdAt", "desc")
+        .onSnapshot(snap => {
+          currentPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderPostsAdmin();
+        });
+    }
+
+    const CONFIG_IMG_KEYS = ["welcomeImg", "bannerImg", "profileImg", "profileFrameImg", "nameSideImg"];
+
+    function fillMainForm(d) {
+      document.getElementById("welcomeNameInput").value = d.welcomeName || DEFAULTS.welcomeName;
+      document.getElementById("welcomeDescInput").value = d.welcomeDesc || DEFAULTS.welcomeDesc;
+      document.getElementById("goToSiteLabelInput").value = d.goToSiteLabel || DEFAULTS.goToSiteLabel;
+      document.getElementById("shopNameInput").value = d.shopName || DEFAULTS.shopName;
+      document.getElementById("bioTextInput").value = d.bioText || DEFAULTS.bioText;
+      document.getElementById("driveHeadingInput").value = d.driveHeading || DEFAULTS.driveHeading;
+
+      CONFIG_IMG_KEYS.forEach(k => {
+        const val = d[k] || DEFAULTS[k];
+        document.getElementById(k + "Input").value = val;
+        document.getElementById("prev_" + k).src = val;
+      });
+      document.getElementById("prev_frameBase").src = d.profileImg || DEFAULTS.profileImg;
+
+      currentLinks = Array.isArray(d.links) && d.links.length ? d.links.map(x => ({ ...x })) : DEFAULT_LINKS.map(x => ({ ...x }));
+      renderLinksEditor();
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderLinksEditor() {
+      const box = document.getElementById("linksEditorList");
+      box.innerHTML = currentLinks.map((item, idx) => `
+        <div class="link-editor-row">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:700; color:var(--sky-deep);">กล่องที่ ${idx + 1}</span>
+            <button type="button" class="btn-danger" onclick="removeLinkRow(${idx})">ลบ</button>
+          </div>
+          <input type="text" class="input-box" style="margin-bottom:7px;" placeholder="ชื่อกล่อง" value="${escapeHtml(item.title)}" oninput="currentLinks[${idx}].title = this.value">
+          <input type="url" class="input-box" style="margin-bottom:0;" placeholder="ลิงก์ https://..." value="${escapeHtml(item.url)}" oninput="currentLinks[${idx}].url = this.value">
+        </div>
+      `).join("");
+    }
+
+    function addLinkRow() {
+      currentLinks.push({ title: "♡ ชื่อปุ่มใหม่", url: "https://" });
+      renderLinksEditor();
+    }
+
+    function removeLinkRow(idx) {
+      currentLinks.splice(idx, 1);
+      renderLinksEditor();
+    }
+
+    function readRawDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = ev => resolve(ev.target.result);
+        fr.onerror = () => reject(new Error("อ่านไฟล์ไม่ได้"));
+        fr.readAsDataURL(file);
+      });
+    }
+
+    // ย่อขนาดรูปให้ไม่เกินขีดจำกัด Firestore โดยคงสัดส่วนเดิมครบ 100% ไม่ตัดภาพ
+    async function processImageUnlimited(file, maxSide = 960, preserveAlpha = false) {
+      const raw = await readRawDataUrl(file);
+      const isPngOrGif = file.type === "image/png" || file.type === "image/gif" || preserveAlpha;
+      if (new Blob([raw]).size <= MAX_DOC_BYTES && (isPngOrGif || file.type === "image/webp")) {
+        return raw;
+      }
+
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          const levels = [
+            { side: maxSide, q: 0.86 },
+            { side: 800, q: 0.78 },
+            { side: 640, q: 0.70 },
+            { side: 500, q: 0.60 }
+          ];
+          let chosen = raw;
+          for (const lv of levels) {
+            const ow = img.naturalWidth || 600;
+            const oh = img.naturalHeight || 600;
+            let tw = ow, th = oh;
+            if (Math.max(ow, oh) > lv.side) {
+              if (ow >= oh) {
+                tw = lv.side;
+                th = Math.max(1, Math.round((oh * lv.side) / ow));
+              } else {
+                th = lv.side;
+                tw = Math.max(1, Math.round((ow * lv.side) / oh));
+              }
+            }
+            const c = document.createElement("canvas");
+            c.width = tw;
+            c.height = th;
+            c.getContext("2d").drawImage(img, 0, 0, tw, th);
+            chosen = isPngOrGif ? c.toDataURL("image/png") : c.toDataURL("image/jpeg", lv.q);
+            if (new Blob([chosen]).size <= MAX_DOC_BYTES) break;
+          }
+          resolve(chosen);
+        };
+        img.src = raw;
+      });
+    }
+
+    async function onPickConfigImage(e, key) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const keepAlpha = key === "welcomeImg" || key === "profileFrameImg" || key === "nameSideImg";
+      const side = keepAlpha ? 520 : 960;
+      const result = await processImageUnlimited(file, side, keepAlpha);
+      document.getElementById(key + "Input").value = result;
+      document.getElementById("prev_" + key).src = result;
+      if (key === "profileImg") {
+        document.getElementById("prev_frameBase").src = result;
+      }
+      e.target.value = "";
+    }
+
+    async function onPickSingleFile(e, inputId, prevId) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const keepAlpha = file.type === "image/png";
+      const result = await processImageUnlimited(file, 960, keepAlpha);
+      document.getElementById(inputId).value = result;
+      document.getElementById(prevId).src = result;
+      e.target.value = "";
+    }
+
+    async function saveMainConfig() {
+      const btn = document.getElementById("saveMainBtn");
+      btn.disabled = true;
+      btn.textContent = "กำลังบันทึก... ⏳";
+
+      const cleanLinks = currentLinks.filter(l => l.title.trim() || l.url.trim());
+
+      const payload = {
+        welcomeName: document.getElementById("welcomeNameInput").value.trim() || DEFAULTS.welcomeName,
+        welcomeDesc: document.getElementById("welcomeDescInput").value,
+        goToSiteLabel: document.getElementById("goToSiteLabelInput").value.trim() || DEFAULTS.goToSiteLabel,
+        welcomeImg: document.getElementById("welcomeImgInput").value.trim() || DEFAULTS.welcomeImg,
+        bannerImg: document.getElementById("bannerImgInput").value.trim() || DEFAULTS.bannerImg,
+        profileImg: document.getElementById("profileImgInput").value.trim() || DEFAULTS.profileImg,
+        profileFrameImg: document.getElementById("profileFrameImgInput").value.trim() || DEFAULTS.profileFrameImg,
+        nameSideImg: document.getElementById("nameSideImgInput").value.trim() || DEFAULTS.nameSideImg,
+        shopName: document.getElementById("shopNameInput").value.trim() || DEFAULTS.shopName,
+        bioText: document.getElementById("bioTextInput").value,
+        driveHeading: document.getElementById("driveHeadingInput").value.trim() || DEFAULTS.driveHeading,
+        links: cleanLinks
+      };
+
+      try {
+        await db.collection(DB_COLLECTION).doc("main").set(payload, { merge: true });
+        alert("บันทึกข้อมูลหน้าเว็บเรียบร้อยแล้วค่ะ ♡");
+      } catch (err) {
+        alert("บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้งค่ะ");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "☁️ บันทึกการตั้งค่าหน้าเว็บทั้งหมด ♡";
+      }
+    }
+
+    function renderFoldersAdmin() {
+      const selectEl = document.getElementById("postFolderSelect");
+      const listEl = document.getElementById("foldersManageList");
+
+      selectEl.innerHTML = currentFolders.map(f =>
+        `<option value="${escapeHtml(f.id)}">${escapeHtml(f.name)}</option>`
+      ).join("");
+
+      listEl.innerHTML = currentFolders.map(f => `
+        <div class="list-item-box">
+          <div class="list-item-info">
+            <img src="${escapeHtml(f.cover || 'https://files.catbox.moe/eoflo6.png')}" class="list-item-thumb" alt="">
+            <div class="list-item-text">
+              <div class="list-item-title">${escapeHtml(f.name)}</div>
+              <div class="list-item-sub">โฟลเดอร์ไดร์ฟ</div>
+            </div>
+          </div>
+          <button type="button" class="btn-danger" onclick="deleteFolder('${escapeHtml(f.id)}')">ลบ</button>
+        </div>
+      `).join("");
+    }
+
+    async function createFolder() {
+      const name = document.getElementById("newFolderName").value.trim();
+      const cover = document.getElementById("newFolderCover").value.trim() || "https://files.catbox.moe/eoflo6.png";
+      if (!name) {
+        alert("กรุณาใส่ชื่อโฟลเดอร์ก่อนนะคะ");
+        return;
+      }
+      const btn = document.getElementById("addFolderBtn");
+      btn.disabled = true;
+      try {
+        await db.collection(DB_COLLECTION).doc("main").collection("folders").add({
+          name,
+          cover,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById("newFolderName").value = "";
+        alert("เพิ่มโฟลเดอร์เรียบร้อยแล้วค่ะ ♡");
+      } catch (e) {
+        alert("เพิ่มโฟลเดอร์ไม่สำเร็จค่ะ");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteFolder(folderId) {
+      if (!confirm("ต้องการลบโฟลเดอร์นี้ใช่ไหมคะ?")) return;
+      try {
+        await db.collection(DB_COLLECTION).doc("main").collection("folders").doc(folderId).delete();
+      } catch (e) {
+        alert("ลบโฟลเดอร์ไม่สำเร็จค่ะ");
+      }
+    }
+
+    function renderPostsAdmin() {
+      const listEl = document.getElementById("postsManageList");
+      if (!currentPosts.length) {
+        listEl.innerHTML = `<div style="text-align:center; font-size:12px; color:var(--text-muted); padding:8px;">ยังไม่มีโพสต์ในระบบ</div>`;
+        return;
+      }
+
+      listEl.innerHTML = currentPosts.map(p => {
+        const folderObj = currentFolders.find(f => f.id === p.folderId);
+        const folderName = folderObj ? folderObj.name : "โฟลเดอร์";
+        return `
+          <div class="list-item-box">
+            <div class="list-item-info">
+              <img src="${escapeHtml(p.image || 'https://files.catbox.moe/eoflo6.png')}" class="list-item-thumb" alt="">
+              <div class="list-item-text">
+                <div class="list-item-title">${escapeHtml(p.title || 'ไม่มีชื่อโพสต์')}</div>
+                <div class="list-item-sub">ใน: ${escapeHtml(folderName)}</div>
+              </div>
+            </div>
+            <button type="button" class="btn-danger" onclick="deletePost('${escapeHtml(p.id)}')">ลบ</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function createPost() {
+      const folderId = document.getElementById("postFolderSelect").value;
+      const title = document.getElementById("postTitleInput").value.trim();
+      const description = document.getElementById("postDescInput").value.trim();
+      const link = document.getElementById("postLinkInput").value.trim();
+      const image = document.getElementById("postImageInput").value.trim();
+
+      if (!folderId) {
+        alert("กรุณาเลือกโฟลเดอร์ก่อนนะคะ");
+        return;
+      }
+      if (!title && !image && !description) {
+        alert("กรุณาใส่ชื่อ รูปภาพ หรือคำอธิบายอย่างน้อย 1 อย่างค่ะ");
+        return;
+      }
+
+      const btn = document.getElementById("addPostBtn");
+      btn.disabled = true;
+      btn.textContent = "กำลังโพสต์... ⏳";
+
+      try {
+        await db.collection(DB_COLLECTION).doc("main").collection("posts").add({
+          folderId,
+          title,
+          description,
+          link,
+          image,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById("postTitleInput").value = "";
+        document.getElementById("postDescInput").value = "";
+        document.getElementById("postLinkInput").value = "";
+        document.getElementById("postImageInput").value = "";
+        document.getElementById("prev_postImage").src = "";
+        alert("ลงโพสต์เรียบร้อยแล้วค่ะ ♡");
+      } catch (e) {
+        alert("ลงโพสต์ไม่สำเร็จ กรุณาลองใหม่อีกครั้งค่ะ");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "+ โพสต์ลงโฟลเดอร์";
+      }
+    }
+
+    async function deletePost(postId) {
+      if (!confirm("ต้องการลบโพสต์นี้ใช่ไหมคะ?")) return;
+      try {
+        await db.collection(DB_COLLECTION).doc("main").collection("posts").doc(postId).delete();
+      } catch (e) {
+        alert("ลบโพสต์ไม่สำเร็จค่ะ");
+      }
+    }
+  </script>
+</body>
+</html>
